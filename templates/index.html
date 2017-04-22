@@ -1,7 +1,147 @@
-{% extends "base.html" %}
+<html>
+<head>
+<title>My Monitor Web</title>
+</head>
 
-{% block title %}首页{% endblock %}
+<body>
+<div id="container" style="height: 400px; min-width: 310px"></div>
+<script src='/static/jquery-3.1.1.min.js'></script>
+<script src='/static/highstock.js'></script>
+<script src='/static/exporting.js'></script>
+<script>
+    var data={{ data|safe }};
+    // 使用当前时区，否则东八区会差八个小时
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
 
-{% block page_content %}
-<h1>这里是首页，Hello World！</h1>
-{% endblock %}
+    chart = new Highcharts.StockChart({
+			chart : {
+				renderTo : 'container',
+				events : {
+					load : st// 定时器
+					}
+					},
+            rangeSelector : {
+//                allButtonsEnabled: true,
+                selected : 6,
+                buttons: [{
+                    type: 'month',
+                    count: 1,
+                    text: '1月'
+                }, {
+                    type: 'week',
+                    count: 1,
+                    text: '1周'
+                }, {
+                    type: 'day',
+                    count: 1,
+                    text: '1天'
+                }, {
+                    type: 'hour',
+                    count: 6,
+                    text: '6小时'
+                }, {
+                    type: 'hour',
+                    count: 1,
+                    text: '1小时'
+                }, {
+                    type: 'minute',
+                    count: 5,
+                    text: '5分钟'
+                }, {
+                    type: 'all',
+                    text: 'All'
+                }]
+            },
+            credits: {
+                enabled: false
+            },
+            title : {
+                text : '内存数据'
+            },
+            series : [{
+                name : '已用内存(MB)',
+                data : data,
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+
+	function st() {
+		setInterval("getData()", 1000);
+		}
+
+	function getData() {
+		$.ajax({
+			type: "get",
+			url: "/new_memory",
+			dataType: "json",
+			success : function(data){
+				chart.series[0].addPoint(data,true,true);
+				}
+				});
+				}
+
+//    $.getJSON('/data', function (data) {
+//
+//        // Create the chart
+//        $('#container').highcharts('StockChart', {
+//            chart: {
+//                type: 'areaspline'
+//            },
+//            rangeSelector : {
+////                allButtonsEnabled: true,
+//                selected : 6,
+//                buttons: [{
+//                    type: 'month',
+//                    count: 1,
+//                    text: '1月'
+//                }, {
+//                    type: 'week',
+//                    count: 1,
+//                    text: '1周'
+//                }, {
+//                    type: 'day',
+//                    count: 1,
+//                    text: '1天'
+//                }, {
+//                    type: 'hour',
+//                    count: 6,
+//                    text: '6小时'
+//                }, {
+//                    type: 'hour',
+//                    count: 1,
+//                    text: '1小时'
+//                }, {
+//                    type: 'minute',
+//                    count: 5,
+//                    text: '5分钟'
+//                }, {
+//                    type: 'all',
+//                    text: 'All'
+//                }]
+//            },
+//            credits: {
+//                enabled: false
+//            },
+//            title : {
+//                text : '内存数据'
+//            },
+//
+//            series : [{
+//                name : '已用内存(MB)',
+//                data : data,
+//                tooltip: {
+//                    valueDecimals: 2
+//                }
+//            }]
+//        });
+//    });
+</script>
+
+</body>
+</html>
